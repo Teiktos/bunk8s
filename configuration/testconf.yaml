@@ -1,0 +1,24 @@
+launcherConfig:
+  coordinatorIp: bunk8s.rd.maibornwolff.de
+  coordinatorPort: 443
+  certFile:
+coordinatorConfig:
+  testRunnerPods:
+    - podName: bunk8s-test-runner-one
+      namespace: bunk8s-fe
+      testTimeout: 40
+      containers:
+        - containerName: test-runner-container-one
+          image: busybox
+          startupCommands: ['sleep','10']
+          startupCommandsArgs:
+          testResultPath: /testresults-one
+    # - podName: bunk8s-test-runner-two
+    #   namespace: bunk8s-fe
+    #   testTimeout: 40
+    #   containers:
+    #     - containerName: test-runner-container-one
+    #       image: busybox
+    #       startupCommands: ['sleep']
+    #       startupCommandsArgs: ['10']
+    #       testResultPath: /testresults-two

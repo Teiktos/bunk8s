@@ -1,0 +1,23 @@
+syntax = "proto3";
+package proto;
+
+
+message Containers {
+  string containerName = 1;
+  string image = 2;
+  repeated string startupCommands = 3;
+  repeated string startupCommandsArgs = 4;
+  string testResultPath = 5;
+}
+
+message CoordinatorConfig {
+  repeated TestRunnerPod testRunnerPods = 1;
+}
+
+message TestRunnerPod {
+  string podName = 1;
+  string namespace = 2;
+  int64 testTimeout = 3;
+  repeated Containers containers = 4;
+}
+

@@ -1,0 +1,15 @@
+launcherConfig:
+  coordinatorIp: bunk8s.rd.maibornwolff.de
+  coordinatorPort: 443
+  certFile:
+coordinatorConfig:
+  testRunnerPods:
+    - podName: showcase-test-runner
+      namespace: bunk8s-fe
+      testTimeout: 600
+      containers:
+        - containerName: showcase-test-container
+          image: maksgpsacrwesteurope.azurecr.io/maks/bunk8s-showcase:latestlatestlatest
+          startupCommands: ["go test"]
+          startupCommandsArgs: ["-v"]
+          testResultPath: /gotest/testresults

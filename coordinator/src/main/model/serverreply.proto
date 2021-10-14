@@ -1,0 +1,19 @@
+syntax = "proto3";
+package proto;
+
+
+message ServerReply {
+  repeated TestRunnerPodReply testRunnerPods = 1;
+}
+
+message SidecarContainerReply {
+  string sidecarContainerName = 1;
+}
+
+message TestRunnerPodReply {
+  int64 returnCode = 1;
+  string podName = 2;
+  string namespace = 3;
+  repeated SidecarContainerReply testRunnerSidecarContainers = 4;
+}
+

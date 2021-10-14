@@ -1,0 +1,48 @@
+syntax = "proto3";
+package testrun;
+option go_package = "./";
+
+
+// coordinator config
+
+message CoordinatorConfig {
+  repeated TestRunnerPod testRunnerPods = 1;
+}
+
+message Containers {
+  string containerName = 1;
+  string image = 2;
+  repeated string startupCommands = 3;
+  repeated string startupCommandsArgs = 4;
+  string testResultPath = 5;
+}
+  
+message TestRunnerPod {
+  string podName = 1;
+  string namespace = 2;
+  int64 testTimeout = 3;
+  repeated Containers containers = 4;
+}
+
+// serverreply
+
+message ServerReply {
+  repeated TestRunnerPodReply testRunnerPods = 1;
+}
+  
+message SidecarContainerReply {
+  string sidecarContainerName = 1;
+}
+
+message TestRunnerPodReply {
+  int64 returnCode = 1;
+  string podName = 2;
+  string namespace = 3;
+  repeated SidecarContainerReply testRunnerSidecarContainers = 4;
+}
+
+// service definition
+
+service TestRun {
+    rpc DeployTestRunner(CoordinatorConfig) returns (ServerReply) {}
+}
