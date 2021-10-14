@@ -1,0 +1,108 @@
+stages:
+  - build
+  - deploy
+  - launch
+  - extract
+
+variables:
+  ACR_URL: '$ACR_FE_URL'
+  PROJECT_NAME: 'bunk8s'
+  DOCKER_ACR_URL: '$ACR_URL/maks/$PROJECT_NAME'
+  DOCKER_FILE: 'Dockerfile'
+  NAMESPACE: 'bunk8s-fe'
+  CHART_DIR: './maks'
+  CONFIG_FILE_NAME: 'showcaseconf.yaml'
+  CONFIG_NAME: '${CONFIG_FILE_NAME%.*}'
+
+build-coordinator:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  tags:
+    - build
+  script:
+    - docker info
+    - cd coordinator/src/main
+    - docker build -t ${DOCKER_ACR_URL}:latest --build-arg ENV_TAG=latest -f ${DOCKER_FILE} .
+    - docker login -u=${ACR_SP} -p=${ACR_PW} ${ACR_URL}
+    - docker push ${DOCKER_ACR_URL}:latest
+
+build-showcase-testrunner:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  tags:
+    - build
+  script:
+    - cd showcase
+    - docker build -t ${ACR_URL}/maks/bunk8s-showcase:latest --build-arg ENV_TAG=latest -f ${DOCKER_FILE} .
+    - docker login -u=${ACR_SP} -p=${ACR_PW} ${ACR_URL}
+    - docker push ${ACR_URL}/maks/bunk8s-showcase:latest
+
+
+build-launcher:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  tags:
+    - build
+  script: 
+    - docker build -f launcher/src/main/Dockerfile --build-arg CONFIGFILE=${CONFIG_FILE_NAME} . -t bunk8s-launcher-image:${CONFIG_FILE_NAME%.*}
+
+deploy-coordinator:
+  stage: deploy
+  dependencies: 
+    - build-coordinator
+    - build-launcher
+  image: alpine/helm
+  tags:
+    - deploy-k8s
+  script:
+    - helm upgrade
+      --install
+      --atomic
+      --values ${CHART_DIR}/bunk8s-coordinator/values.yaml
+      --set variables.namespace=${NAMESPACE}
+      --set nameOverride=${PROJECT_NAME}
+      --namespace ${NAMESPACE}
+      ${PROJECT_NAME}
+      maks/bunk8s-coordinator
+
+start-launcher: 
+  stage: launch
+  dependencies: 
+    - deploy-coordinator
+  tags:
+    - build
+  before_script:
+    - apk update
+    - apk add --no-cache bash
+    - apk add --no-cache jq
+  script:
+    - launcher/launch.sh
+
+  artifacts:
+    paths:
+    - serverReply.json
+    expire_in: 1 day
+
+extract-results:
+  stage: extract
+  dependencies: 
+    - start-launcher
+  image: dtzar/helm-kubectl
+  tags:
+    - deploy-k8s
+  before_script:
+    - apk update
+    - apk add --no-cache bash
+    - apk add --no-cache jq
+  script:
+    - launcher/extract.sh ./serverReply.json
+  artifacts:
+    paths:
+    - testresults
+    expire_in: 1 day
