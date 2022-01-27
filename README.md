@@ -34,6 +34,10 @@ The Bunk8s Coordinator handles the deployment of the test runner containers and 
 5. Particular attention is to be paid to the Ingress configuration in the helm chart. Depending on the used Ingress controller in the cluster the Ingresses annotations must be changed in order to enable the communication between the gRPC client and the gRPC server. A certificate for TLS must be provided to the ingress and the CAs root certificate must be placed in the `bunk8s/launcher/src/cert` directory, before building the container image. 
 6. Create a role, that grants access to the core API, namespaces, and pod resources and assign it to the coordinator. For the namespace resource, the required verb is ["get"], while for the pod resource the required verbs are ["get", "list", "watch", "create"]. Additionally, a service account, as well as a role binding must be created and be assigned to the coordinator pod. All three parts of the role-based access control, the role, the service account, and the role binding must be created in the namespace of the coordinator.
 
+# Showcase
+
+[![Bunk8s Showcase](http://img.youtube.com/vi/e8wbS25O4Bo/0.jpg)](https://www.youtube.com/watch?v=e8wbS25O4Bo "Bunk8s Showcase")
+
 # Project Setup
 
 ## Utilized versions
