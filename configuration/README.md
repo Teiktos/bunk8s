@@ -19,7 +19,7 @@ coordinatorConfig:
           testResultPath:
 ```
 
-An example configuration looks like this:
+The following is an example configuration, in which two test runners are deployed:
 
 ```yaml  
 launcherConfig:

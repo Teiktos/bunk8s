@@ -1,6 +1,7 @@
 # Bunk8s
 
-A tool for broad integration testing of microservices in Kubernetes. The following gives an overview of the different components of Bunk8s.
+A tool for broad integration testing of microservices in Kubernetes.
+The following gives an overview of the different components of Bunk8s 
 
 ## The Configuration file
 
@@ -28,11 +29,18 @@ The Bunk8s Coordinator handles the deployment of the test runner containers and 
 # Installation 
 
 1. The launcher image, as well as the coordinator image must be built. The Docker image files are written in such a way, that the build contexts root directory must be the root directory of the Bunk8s repository. 
-2. The launcher container must be uploaded to a container registry from which pipeline runners can pull it so that it can be run in the pipeline. 
-3. The coordinator container must be uploaded to a container registry to which Kubernetes has access. 
+2. The launcher container image must be uploaded to a container registry from which pipeline runners can pull it so that it can be run in the pipeline. 
+3. The coordinator container image must be uploaded to a container registry to which Kubernetes has access. 
 4. Deploy the coordinator. It is possible to deploy it to an arbitrary namespace without affecting its functionality, however, it is recommended to deploy it into its own namespace. In order to allow for a quick setup of the coordinator, the Bunk8s repository includes a preconfigured helm chart for deployment to Kubernetes. When deployed with Helm, the coordinator is part of a deployment and therefore of a replica set. However, it is only required to set the number of replicas to one, since the gRPC server can handle multiple simultaneous test runs. 
-5. Particular attention is to be paid to the Ingress configuration in the helm chart. Depending on the used Ingress controller in the cluster the Ingresses annotations must be changed in order to enable the communication between the gRPC client and the gRPC server. A certificate for TLS must be provided to the ingress and the CAs root certificate must be placed in the `bunk8s/launcher/src/cert` directory, before building the container image. 
-6. Create a role, that grants access to the core API, namespaces, and pod resources and assign it to the coordinator. For the namespace resource, the required verb is ["get"], while for the pod resource the required verbs are ["get", "list", "watch", "create"]. Additionally, a service account, as well as a role binding must be created and be assigned to the coordinator pod. All three parts of the role-based access control, the role, the service account, and the role binding must be created in the namespace of the coordinator.
+5. A certificate for TLS must be provided to the ingress and the CAs root certificate must be placed in the `bunk8s/launcher/src/cert` directory, before building the container image. Particular attention is to be paid to the Ingress configuration in the helm chart. Depending on the used Ingress controller in the cluster the Ingresses annotations must be changed in order to enable the communication between the gRPC client and the gRPC server. 
+```` yaml
+nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+````
+6. Create a role, that grants access to the core API, namespaces, and pod resources and assign it to the coordinator pod. For the namespace resource, the required verb is ["get"], while for the pod resource the required verbs are ["get", "list", "watch", "create"]. Additionally, a service account, as well as a role binding must be created and be assigned to the coordinator pod. All three parts of the role-based access control, the role, the service account, and the role binding must be created in the namespace of the coordinator.
+
+# Showcase
+
+[![Bunk8s Showcase](http://img.youtube.com/vi/e8wbS25O4Bo/0.jpg)](https://www.youtube.com/watch?v=e8wbS25O4Bo "Bunk8s Showcase")
 
 # Project Setup
 
@@ -51,3 +59,7 @@ The Bunk8s Coordinator handles the deployment of the test runner containers and 
         "experimentalWorkspaceModule": true,
     }
     ```
+
+# Reference 
+
+<cite>Reile, C., Chadha, C., Hauner, V., Jindal, A., Hofmann, B., Gerndt, M. (2022).  Bunk8s: Enabling Easy Integration Testing of Microservices in Kubernetes. IEEE International Conference on Software Analysis, USA.
